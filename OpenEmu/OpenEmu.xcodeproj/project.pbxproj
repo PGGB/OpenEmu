@@ -487,6 +487,8 @@
 		83FFC069145819070077EC27 /* installer_backgroundSample.png in Resources */ = {isa = PBXBuildFile; fileRef = 83FFC068145819070077EC27 /* installer_backgroundSample.png */; };
 		83FFC06D1458194E0077EC27 /* OESetupAssistantBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 83FFC06C1458194E0077EC27 /* OESetupAssistantBox.m */; };
 		8C415ECD16B0682B00980DB9 /* OEMultipassShader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C415ECC16B0682B00980DB9 /* OEMultipassShader.m */; };
+		8C43C5A216D1AEA000CF4481 /* OpenCL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8C43C59E16D1AE5700CF4481 /* OpenCL.framework */; };
+		8C43C5A416D1AF3100CF4481 /* ntsc.cl in Sources */ = {isa = PBXBuildFile; fileRef = 8C43C5A316D1AF3100CF4481 /* ntsc.cl */; };
 		8C4C808916986697009B8A28 /* OEGLSLShader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C4C808816986697009B8A28 /* OEGLSLShader.m */; };
 		8C4C808E16986C87009B8A28 /* OECGShader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C4C808D16986C87009B8A28 /* OECGShader.m */; };
 		8C8AD73816B5DBE20004D97C /* changes.txt in Resources */ = {isa = PBXBuildFile; fileRef = 8C8AD73016B5DBE20004D97C /* changes.txt */; };
@@ -1659,6 +1661,8 @@
 		83FFC06C1458194E0077EC27 /* OESetupAssistantBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OESetupAssistantBox.m; sourceTree = "<group>"; };
 		8C415ECB16B0682B00980DB9 /* OEMultipassShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEMultipassShader.h; sourceTree = "<group>"; };
 		8C415ECC16B0682B00980DB9 /* OEMultipassShader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEMultipassShader.m; sourceTree = "<group>"; };
+		8C43C59E16D1AE5700CF4481 /* OpenCL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenCL.framework; path = System/Library/Frameworks/OpenCL.framework; sourceTree = SDKROOT; };
+		8C43C5A316D1AF3100CF4481 /* ntsc.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; path = ntsc.cl; sourceTree = "<group>"; };
 		8C4C808716986697009B8A28 /* OEGLSLShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OEGLSLShader.h; sourceTree = "<group>"; };
 		8C4C808816986697009B8A28 /* OEGLSLShader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OEGLSLShader.m; sourceTree = "<group>"; };
 		8C4C808C16986C87009B8A28 /* OECGShader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OECGShader.h; sourceTree = "<group>"; };
@@ -1949,6 +1953,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8C43C5A216D1AEA000CF4481 /* OpenCL.framework in Frameworks */,
 				1B48F21816671474004E8ABA /* FeedbackReporter.framework in Frameworks */,
 				0A9F272316635A55008B1FB8 /* libz.dylib in Frameworks */,
 				3D1D8D821650C22900DBC37D /* Accelerate.framework in Frameworks */,
@@ -2065,6 +2070,7 @@
 		1058C7A6FEA54F5311CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8C43C59E16D1AE5700CF4481 /* OpenCL.framework */,
 				8CCBC0C8169B323100141631 /* Cg.framework */,
 				3D1D8D811650C22900DBC37D /* Accelerate.framework */,
 				8322D746156A973400FC0E81 /* IOBluetooth.framework */,
@@ -3479,6 +3485,7 @@
 				8C8AD73516B5DBE20004D97C /* snes_ntsc.c */,
 				8C8AD73616B5DBE20004D97C /* snes_ntsc.h */,
 				8C8AD73716B5DBE20004D97C /* snes_ntsc.txt */,
+				8C43C5A316D1AF3100CF4481 /* ntsc.cl */,
 			);
 			name = "Blargg's NTSC filter";
 			sourceTree = "<group>";
@@ -4977,6 +4984,7 @@
 				94791E9516AE8A18007DB8BE /* OEShaderPlugin.m in Sources */,
 				8C415ECD16B0682B00980DB9 /* OEMultipassShader.m in Sources */,
 				C6C3734216BE7065003E57AE /* OEBuiltInShader.m in Sources */,
+				8C43C5A416D1AF3100CF4481 /* ntsc.cl in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

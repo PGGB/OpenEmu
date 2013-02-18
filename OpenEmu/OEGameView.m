@@ -48,8 +48,10 @@
 #import <IOSurface/IOSurface.h>
 #import <OpenGL/CGLIOSurface.h>
 #import <Accelerate/Accelerate.h>
+#import <OpenCL/OpenCL.h>
 
 #import "snes_ntsc.h"
+#import "ntsc.cl.h"
 
 // TODO: bind vsync. Is it even necessary, why do we want it off at all?
 
@@ -99,6 +101,8 @@ static const GLfloat cg_coords[] =
 @property GLuint             ntscTexture;
 @property int                ntscBurstPhase;
 @property int                ntscMergeFields;
+
+@property CGLShareGroupObj sharegroup;
 
 @property OEIntSize          gameScreenSize;
 @property OEIntSize          gameAspectSize;
@@ -163,6 +167,9 @@ static const GLfloat cg_coords[] =
 
     CGLContextObj cgl_ctx = [[self openGLContext] CGLContextObj];
     CGLLockContext(cgl_ctx);
+
+    _sharegroup = CGLGetShareGroup(cgl_ctx);
+    gcl_gl_set_sharegroup(_sharegroup);
 
     // GL resources
     glGenTextures(1, &_gameTexture);
