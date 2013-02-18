@@ -48,7 +48,7 @@
 #import <IOSurface/IOSurface.h>
 #import <OpenGL/CGLIOSurface.h>
 #import <Accelerate/Accelerate.h>
-#import <OpenCL/OpenCL.h>
+#import <OpenCL/opencl.h>
 
 #import "snes_ntsc.h"
 #import "ntsc.cl.h"
@@ -103,6 +103,9 @@ static const GLfloat cg_coords[] =
 @property int                ntscMergeFields;
 
 @property CGLShareGroupObj sharegroup;
+@property dispatch_queue_t queue;
+@property cl_image bmp1;
+@property cl_image bmp2;
 
 @property OEIntSize          gameScreenSize;
 @property OEIntSize          gameAspectSize;
@@ -168,9 +171,6 @@ static const GLfloat cg_coords[] =
     CGLContextObj cgl_ctx = [[self openGLContext] CGLContextObj];
     CGLLockContext(cgl_ctx);
 
-    _sharegroup = CGLGetShareGroup(cgl_ctx);
-    gcl_gl_set_sharegroup(_sharegroup);
-
     // GL resources
     glGenTextures(1, &_gameTexture);
 
@@ -231,7 +231,18 @@ static const GLfloat cg_coords[] =
     glBindTexture(GL_TEXTURE_2D, _ntscTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+    // TEMPORARY
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _gameScreenSize.width, _gameScreenSize.height, 0, GL_RGBA, GL_FLOAT, NULL);
+
+    
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    _sharegroup = CGLGetShareGroup(cgl_ctx);
+    gcl_gl_set_sharegroup(_sharegroup);
+    _queue = gcl_create_dispatch_queue(CL_DEVICE_TYPE_GPU, NULL);
+    _bmp1 = gcl_gl_create_image_from_texture(GL_TEXTURE_2D, 0, _ntscTexture);
+    _bmp2 = gcl_gl_create_image_from_texture(GL_TEXTURE_2D, 0, _rttGameTextures[0]);
 
     _frameCount = 0;
 
@@ -285,6 +296,8 @@ static const GLfloat cg_coords[] =
 
     CGLContextObj cgl_ctx = [[self openGLContext] CGLContextObj];
     CGLLockContext(cgl_ctx);
+
+    dispatch_release(_queue);
 
     glDeleteTextures(1, &_gameTexture);
     _gameTexture = 0;
@@ -731,17 +744,32 @@ static const GLfloat cg_coords[] =
     // apply NTSC filter if needed
     if([multipassShader NTSCFilter] != OENTSCFilterTypeNone && _gameScreenSize.width <= 512)
     {
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5_REV, _ntscSource);
+        /*glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5_REV, _ntscSource);
 
         if(!_ntscMergeFields) _ntscBurstPhase ^= 1;
 
+        
         glBindTexture(GL_TEXTURE_2D, _ntscTexture);
         if(_gameScreenSize.width <= 256)
             snes_ntsc_blit(_ntscTable, _ntscSource, _gameScreenSize.width, _ntscBurstPhase, _gameScreenSize.width, _gameScreenSize.height, _ntscDestination, SNES_NTSC_OUT_WIDTH(_gameScreenSize.width)*2);
         else
             snes_ntsc_blit_hires(_ntscTable, _ntscSource, _gameScreenSize.width, _ntscBurstPhase, _gameScreenSize.width, _gameScreenSize.height, _ntscDestination, SNES_NTSC_OUT_WIDTH_HIRES(_gameScreenSize.width)*2);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _multipassSizes[0].width, _multipassSizes[0].height, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5_REV, _ntscDestination);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _multipassSizes[0].width, _multipassSizes[0].height, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5_REV, _ntscDestination);*/
+
+        dispatch_sync(_queue, ^{
+            size_t wgs;
+            gcl_get_kernel_block_workgroup_info((__bridge void *)(turn_kernel), CL_KERNEL_WORK_GROUP_SIZE, sizeof(wgs), &wgs, NULL);
+
+            cl_ndrange range = {
+                2,
+                {0, 0, 0},
+                {_gameScreenSize.width, _gameScreenSize.height, 0},
+                {_gameScreenSize.width/wgs, _gameScreenSize.height/wgs, 0}
+            };
+
+            turn_kernel(&range, _bmp1, _bmp2);
+        });
     }
 
     // render all passes to FBOs
