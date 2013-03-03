@@ -106,6 +106,7 @@ static const GLfloat cg_coords[] =
 @property dispatch_queue_t queue;
 @property cl_image bmp1;
 @property cl_image bmp2;
+@property void* gpuTable;
 
 @property OEIntSize          gameScreenSize;
 @property OEIntSize          gameAspectSize;
@@ -241,8 +242,10 @@ static const GLfloat cg_coords[] =
     _sharegroup = CGLGetShareGroup(cgl_ctx);
     gcl_gl_set_sharegroup(_sharegroup);
     _queue = gcl_create_dispatch_queue(CL_DEVICE_TYPE_GPU, NULL);
-    _bmp1 = gcl_gl_create_image_from_texture(GL_TEXTURE_2D, 0, _ntscTexture);
-    _bmp2 = gcl_gl_create_image_from_texture(GL_TEXTURE_2D, 0, _rttGameTextures[0]);
+    _bmp2 = gcl_gl_create_image_from_texture(GL_TEXTURE_2D, 0, _ntscTexture);
+    _bmp1 = gcl_gl_create_image_from_texture(GL_TEXTURE_2D, 0, _rttGameTextures[0]);
+    _gpuTable  = gcl_malloc(sizeof(snes_ntsc_t), _ntscTable,
+                               CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR);
 
     _frameCount = 0;
 
@@ -759,16 +762,28 @@ static const GLfloat cg_coords[] =
 
         dispatch_sync(_queue, ^{
             size_t wgs;
-            gcl_get_kernel_block_workgroup_info((__bridge void *)(turn_kernel), CL_KERNEL_WORK_GROUP_SIZE, sizeof(wgs), &wgs, NULL);
+            gcl_get_kernel_block_workgroup_info((__bridge void *)(ntsc_blit_kernel), CL_KERNEL_WORK_GROUP_SIZE, sizeof(wgs), &wgs, NULL);
 
+            ///*
+             cl_ndrange range = {
+                1,
+                {0, 0, 0},
+                {_gameScreenSize.height, 0, 0},
+                {_gameScreenSize.height/wgs, 0, 0}
+            };
+             //*/
+
+            /*
             cl_ndrange range = {
                 2,
                 {0, 0, 0},
                 {_gameScreenSize.width, _gameScreenSize.height, 0},
                 {_gameScreenSize.width/wgs, _gameScreenSize.height/wgs, 0}
             };
+            */
 
-            turn_kernel(&range, _bmp1, _bmp2);
+            ntsc_blit_kernel(&range, _gpuTable, _bmp1, _bmp2);
+            //turn_kernel(&range, _gpuTable, _bmp1, _bmp2);
         });
     }
 
