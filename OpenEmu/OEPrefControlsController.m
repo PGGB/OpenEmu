@@ -660,7 +660,7 @@ static CFHashCode _OEHIDEventHashSetCallback(OEHIDEvent *value)
 
 - (NSSize)viewSize
 {
-    return NSMakeSize(561, 543);
+    return NSMakeSize(740, 450);
 }
 
 - (NSColor *)toolbarSeparationColor
