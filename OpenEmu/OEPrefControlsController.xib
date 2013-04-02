@@ -173,14 +173,14 @@
 												<reference key="NSNextResponder" ref="607083126"/>
 												<int key="NSvFlags">278</int>
 												<array class="NSMutableArray" key="NSSubviews"/>
-												<string key="NSFrameSize">{198, 265}</string>
+												<string key="NSFrameSize">{198, 267}</string>
 												<reference key="NSSuperview" ref="607083126"/>
 												<reference key="NSWindow"/>
 												<reference key="NSNextKeyView" ref="714866421"/>
 												<string key="NSReuseIdentifierKey">_NS:404</string>
 											</object>
 										</array>
-										<string key="NSFrameSize">{198, 264}</string>
+										<string key="NSFrameSize">{198, 266}</string>
 										<reference key="NSSuperview" ref="138075039"/>
 										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="837216714"/>
@@ -191,7 +191,7 @@
 									<object class="NSScroller" id="714866421">
 										<reference key="NSNextResponder" ref="138075039"/>
 										<int key="NSvFlags">256</int>
-										<string key="NSFrame">{{198, 0}, {15, 264}}</string>
+										<string key="NSFrame">{{198, 0}, {15, 266}}</string>
 										<reference key="NSSuperview" ref="138075039"/>
 										<reference key="NSWindow"/>
 										<reference key="NSNextKeyView" ref="967997443"/>
@@ -201,7 +201,7 @@
 										<reference key="NSTarget" ref="138075039"/>
 										<string key="NSAction">_doScroller:</string>
 										<double key="NSCurValue">1</double>
-										<double key="NSPercent">0.99622641509433962</double>
+										<double key="NSPercent">0.99625468164794007</double>
 									</object>
 									<object class="NSScroller" id="153730345">
 										<reference key="NSNextResponder" ref="138075039"/>
@@ -218,7 +218,7 @@
 										<double key="NSPercent">0.50602412223815918</double>
 									</object>
 								</array>
-								<string key="NSFrame">{{0, 43}, {213, 264}}</string>
+								<string key="NSFrame">{{0, 49}, {213, 266}}</string>
 								<reference key="NSSuperview" ref="26693448"/>
 								<reference key="NSWindow"/>
 								<reference key="NSNextKeyView" ref="153730345"/>
@@ -321,7 +321,7 @@
 					<object class="NSPopUpButton" id="433849363">
 						<reference key="NSNextResponder" ref="268028433"/>
 						<int key="NSvFlags">268</int>
-						<string key="NSFrame">{{501, 398}, {213, 26}}</string>
+						<string key="NSFrame">{{501, 398}, {215, 26}}</string>
 						<reference key="NSSuperview" ref="268028433"/>
 						<reference key="NSWindow"/>
 						<reference key="NSNextKeyView" ref="26693448"/>
@@ -929,7 +929,7 @@
 			<nil key="activeLocalization"/>
 			<dictionary class="NSMutableDictionary" key="localizations"/>
 			<nil key="sourceID"/>
-			<int key="maxID">125</int>
+			<int key="maxID">127</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<array class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1041,10 +1041,12 @@
 						<string key="consolesPopupButton">NSPopUpButton</string>
 						<string key="controllerContainerView">NSView</string>
 						<string key="controlsContainer">NSView</string>
+						<string key="controlsScrollView">OEControlsScrollView</string>
 						<string key="controlsSetupView">OEControlsButtonSetupView</string>
 						<string key="gradientOverlay">OEBackgroundGradientView</string>
 						<string key="inputPopupButton">NSPopUpButton</string>
 						<string key="playerPopupButton">NSPopUpButton</string>
+						<string key="preferencesControlBox">OEPreferencesControlsBox</string>
 					</dictionary>
 					<dictionary class="NSMutableDictionary" key="toOneOutletInfosByName">
 						<object class="IBToOneOutletInfo" key="consolesPopupButton">
@@ -1058,6 +1060,10 @@
 						<object class="IBToOneOutletInfo" key="controlsContainer">
 							<string key="name">controlsContainer</string>
 							<string key="candidateClassName">NSView</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="controlsScrollView">
+							<string key="name">controlsScrollView</string>
+							<string key="candidateClassName">OEControlsScrollView</string>
 						</object>
 						<object class="IBToOneOutletInfo" key="controlsSetupView">
 							<string key="name">controlsSetupView</string>
@@ -1074,6 +1080,10 @@
 						<object class="IBToOneOutletInfo" key="playerPopupButton">
 							<string key="name">playerPopupButton</string>
 							<string key="candidateClassName">NSPopUpButton</string>
+						</object>
+						<object class="IBToOneOutletInfo" key="preferencesControlBox">
+							<string key="name">preferencesControlBox</string>
+							<string key="candidateClassName">OEPreferencesControlsBox</string>
 						</object>
 					</dictionary>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">

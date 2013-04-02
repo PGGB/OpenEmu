@@ -38,7 +38,9 @@
 
     NSRect lineRect = [self bounds];
     lineRect.size.height = 1;
-    lineRect.origin.y = 307;
+
+    // Draw top separator
+    lineRect.origin.y = 315;
 
     [topColor setFill];
     NSRectFill(lineRect);
@@ -47,7 +49,8 @@
     [bottomColor setFill];
     NSRectFillUsingOperation(lineRect, NSCompositeSourceOver);
 
-    lineRect.origin.y = 43;
+    // Draw bottom separator
+    lineRect.origin.y = 48;
 
     [topColor setFill];
     NSRectFill(lineRect);
