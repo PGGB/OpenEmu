@@ -48,6 +48,7 @@
 - (NSArray *)elementGroups;
 - (NSArray *)orderedKeys;
 - (NSDictionary *)keyToButtonMap;
+- (NSUInteger)numberOfRows;
 @end
 
 @interface OEControlsButtonSetupView ()
@@ -55,6 +56,7 @@
 	NSArray      *elementGroups;
     NSArray      *orderedKeys;
     NSDictionary *keyToButtonMap;
+    NSUInteger    numberOfRows;
     CGFloat       lastWidth;
 }
 
@@ -93,6 +95,7 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
     elementGroups   = [parser elementGroups];
     keyToButtonMap  = [parser keyToButtonMap];
     orderedKeys     = [parser orderedKeys];
+    numberOfRows    = [parser numberOfRows];
     
     [keyToButtonMap enumerateKeysAndObjectsUsingBlock:
      ^(NSString *key, OEControlsKeyButton *obj, BOOL *stop)
@@ -100,7 +103,7 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
          [obj bind:@"title" toObject:self withKeyPath:[NSString stringWithFormat:@"bindingsProvider.%@", key] options:
           @{ NSNullPlaceholderBindingOption : @"" }];
      }];
-    
+
     [self OE_layoutSubviews];
 }
 
@@ -146,123 +149,82 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
     [[[self subviews] copy] makeObjectsPerformSelector:@selector(removeFromSuperview)];
     
     // set up some sizes
-    const CGFloat pageSpacing  = 23.0;
-    const CGFloat pageHeight   = 123.0;
-    
-    const CGFloat topBorder    = 33.0;
-    const CGFloat leftBorder   = 61.0;
-    const CGFloat rightBorder  = 21.0;
-    const CGFloat bottomBorder = 30.0;
-    
-    const CGFloat verticalItemSpacing = 9.0; // item bottom to top
-    const CGFloat labelHeight         = 24.0;
-    const CGFloat labelButtonSpacing  = 8.0;
-    
-    const CGFloat groupXIndent = 10.0;
-    const CGFloat groupYIndent = 5.0;
-    
+    const CGFloat leftGap             =  16.0;
+    const CGFloat rightGap            =  16.0;
+    const CGFloat itemHeight          =  24.0;
+    const CGFloat verticalItemSpacing =   9.0; // item bottom to top
+    const CGFloat labelButtonSpacing  =   8.0;
+    const CGFloat buttonWidth         = 130.0 - rightGap;
+
     lastWidth = [self frame].size.width;
-    
+
     // determine required height
-    CGFloat viewHeight = [elementGroups count] * pageHeight + ([elementGroups count] - 1) * pageSpacing + topBorder + bottomBorder;
+    CGFloat viewHeight = (numberOfRows + 1) * verticalItemSpacing + numberOfRows * itemHeight;
     if([self frame].size.height != viewHeight)
     {
         NSRect frame = [self frame];
         frame.size.height = viewHeight;
         [self setFrame:frame];
     }
-    
-    __block CGFloat pageY = [self frame].size.height - topBorder;
 
-    /*
-    // iterate through pages
-    for(NSMutableArray *aPage in elementGroups)
+    CGFloat y = self.frame.size.height - verticalItemSpacing;
+
+    for(NSArray *group in elementGroups)
     {
-        // iterate through columns
-        NSUInteger columns = [aPage count];
-        __block CGFloat x = leftBorder;
-        
-        [aPage enumerateObjectsUsingBlock:
-         ^(id aColumn, NSUInteger idx, BOOL *stop)
-         {
-             CGFloat horizontalItemSpacing = columns == 2 ? 120 : 68.0; // item right to item left
-             CGFloat labelWidth            = columns == 2 ? 112 : 60.0; // max value!!!
-             
-             CGFloat buttonHeight = 24.0;
-             CGFloat buttonWidth  = ([self frame].size.width - leftBorder - rightBorder - ((columns - 1) * horizontalItemSpacing)) / columns;
-             
-             BOOL inGroup = NO;
-             CGFloat y = pageY;
-             for(NSUInteger j = 0; j < [aColumn count]; j += 2)
-             {
-                 id item = [aColumn objectAtIndex:j];
-                 
-                 // handle headline cell
-                 if([item isKindOfClass:[NSTextField class]] && [[item cell] isKindOfClass:[OEControlsKeyHeadlineCell class]])
-                 {
-                     j--;
-                     inGroup = YES;
-                     
-                     y -= groupYIndent/2;
-                     
-                     CGFloat columnWidth = buttonWidth + labelWidth + labelButtonSpacing;
-                     NSRect headlineFrame = (NSRect){{x - columnWidth, y }, { columnWidth, labelHeight }};
-                     [item setFrame:NSIntegralRect(headlineFrame)];
-                     [self addSubview:item];
-                     
-                     y -= groupYIndent;
-                     
-                     continue;
-                 }
-                 
-                 // handle separator
-                 if([item isKindOfClass:[OEControlsKeySeparatorView class]])
-                 {
-                     j--;
-                     
-                     CGFloat columnWidth = buttonWidth+labelWidth+labelButtonSpacing;
-                     
-                     NSRect seperatorLineRect = (NSRect){{ x - labelWidth + 8.0, y - buttonHeight }, { columnWidth - 6.0, buttonHeight }};
-                     [item setFrame:NSIntegralRect(seperatorLineRect)];
-                     [self addSubview:item];
-                     
-                     inGroup = NO;
-                     y -= buttonHeight+verticalItemSpacing;
-                     
-                     continue;
-                 }
-                 
-                 // handle buttons + label
-                 NSRect buttonRect = (NSRect){{ x, y - buttonHeight },{ buttonWidth, buttonHeight }};
-                 if(inGroup)
-                 {
-                     buttonRect.origin.x   += groupXIndent;
-                     buttonRect.size.width -= groupXIndent / 2;
-                 }
-                 [item setFrame:NSIntegralRect(buttonRect)];
-                 
-                 NSTextField *label = [aColumn objectAtIndex:j + 1];
-                 NSRect labelRect = NSIntegralRect(NSMakeRect(buttonRect.origin.x - labelWidth - labelButtonSpacing, buttonRect.origin.y - 4, labelWidth, labelHeight));
-                 
-                 BOOL multiline = [label attributedStringValue].size.width >= labelRect.size.width;
-                 if(multiline)
-                 {
-                     labelRect.size.height += 10;
-                     labelRect.origin.y    -= 3;
-                 }
-                 if(inGroup) labelRect.size.width -= groupXIndent/2;
-                 [label setFrame:labelRect];
-                 
-                 [self addSubview:item];
-                 [self addSubview:label];
-                 
-                 y -= buttonHeight+verticalItemSpacing;
-             }
-             x += horizontalItemSpacing+buttonWidth;
-         }];
-        
-        pageY -= pageHeight+pageSpacing;
-    }*/
+        for(NSUInteger j = 0; j < [group count]; j += 2)
+        {
+            id item = [group objectAtIndex:j];
+
+            // handle headline cell
+            if([item isKindOfClass:[NSTextField class]] && [[item cell] isKindOfClass:[OEControlsKeyHeadlineCell class]])
+            {
+                j--;
+
+                NSRect headlineFrame = (NSRect){{leftGap, y - itemHeight }, { lastWidth - leftGap - rightGap, itemHeight }};
+                [item setFrame:NSIntegralRect(headlineFrame)];
+                [self addSubview:item];
+
+                y -= itemHeight + verticalItemSpacing;
+
+                continue;
+            }
+
+            // handle separator
+            if([item isKindOfClass:[OEControlsKeySeparatorView class]])
+            {
+                j--;
+
+                NSRect seperatorLineRect = (NSRect){{ leftGap, y - itemHeight }, { lastWidth - leftGap - rightGap, itemHeight }};
+                [item setFrame:NSIntegralRect(seperatorLineRect)];
+                [self addSubview:item];
+
+                y -= itemHeight + verticalItemSpacing;
+
+                continue;
+            }
+
+            // handle buttons + label
+            NSRect buttonRect = (NSRect){{ lastWidth - rightGap - buttonWidth, y - itemHeight },{ buttonWidth, itemHeight }};
+            [item setFrame:NSIntegralRect(buttonRect)];
+
+            NSTextField *label = [group objectAtIndex:j + 1];
+            NSRect labelRect = NSIntegralRect(NSMakeRect(leftGap, buttonRect.origin.y - 4, lastWidth - leftGap - labelButtonSpacing - buttonWidth - rightGap, itemHeight));
+
+            
+            BOOL multiline = [label attributedStringValue].size.width >= labelRect.size.width;
+            if(multiline)
+            {
+                labelRect.size.height += 10;
+                labelRect.origin.y    -= 3;
+            }
+            [label setFrame:labelRect];
+
+            [self addSubview:item];
+            [self addSubview:label];
+
+            y -= itemHeight + verticalItemSpacing;
+        }
+    }
 }
 
 #pragma mark -
@@ -353,6 +315,7 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
     NSMutableArray      *elementGroups;
     NSMutableArray      *orderedKeys;
     NSMutableDictionary *keyToButtonMap;
+    NSUInteger           numberOfRows;
     
     NSMutableArray      *currentGroup;
 }
@@ -386,6 +349,7 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
     orderedKeys    = [[NSMutableArray      alloc] init];
     elementGroups  = [[NSMutableArray      alloc] init];
     currentGroup   = nil;
+    numberOfRows   = 0;
 
     for(NSArray *group in controlList)
     {
@@ -393,6 +357,7 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
 
         for(id row in group)
         {
+            ++numberOfRows;
             if([row isKindOfClass:[NSString class]])
             {
                 if([row isEqualToString:@"-"])
@@ -423,6 +388,11 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
 - (NSArray *)orderedKeys;
 {
     return [orderedKeys copy];
+}
+
+- (NSUInteger)numberOfRows;
+{
+    return numberOfRows;
 }
 
 - (void)OE_addButtonWithName:(NSString *)aName label:(NSString *)aLabel;
