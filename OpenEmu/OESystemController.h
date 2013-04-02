@@ -87,6 +87,7 @@ extern NSString *const OEControlListKeyLabelKey;
 
 extern NSString *const OEControllerImageKey;       // NSString - file name of the controller image
 extern NSString *const OEControllerImageMaskKey;   // NSString - file name of the controller image mask
+extern NSString *const OEControllerKeyPositionKey; // NSDictionary - KeyName -> NSPoint as NSString
 
 typedef enum
 {
@@ -127,6 +128,7 @@ typedef enum
 @property(readonly, copy) NSArray      *hatSwitchControls;
 
 @property(readonly, copy) NSArray      *controlPageList;
+@property(readonly, copy) NSDictionary *controllerKeyPositions;
 @property(readonly, copy) NSString     *controllerImageName;
 @property(readonly, copy) NSString     *controllerImageMaskName;
 
