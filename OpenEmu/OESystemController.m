@@ -87,14 +87,12 @@ NSString *const OEAxisControlsKey            = @"OEAxisControlsKey";
 NSString *const OEControlListKey             = @"OEControlListKey";
 NSString *const OEControlListKeyNameKey      = @"OEControlListKeyNameKey";
 NSString *const OEControlListKeyLabelKey     = @"OEControlListKeyLabelKey";
-NSString *const OEControlListKeyPositionKey  = @"OEControlListKeyPositionKey";
 
 NSString *const OEControllerImageKey         = @"OEControllerImageKey";
 NSString *const OEControllerImageMaskKey     = @"OEControllerImageMaskKey";
-NSString *const OEControllerKeyPositionKey   = @"OEControllerKeyPositionKey";
 
 @implementation OESystemController
-@synthesize controllerKeyPositions, controllerImageMaskName, controllerImageName, controllerImage, controllerImageMask;
+@synthesize controllerImageMaskName, controllerImageName, controllerImage, controllerImageMask;
 @synthesize fileTypes;
 @synthesize axisControls, hatSwitchControls, genericSettingNames, genericControlNames, systemControlNames;
 
@@ -216,20 +214,6 @@ NSString *const OEControllerKeyPositionKey   = @"OEControllerKeyPositionKey";
     
     controllerImageName     = [localizedPlist objectForKey:OEControllerImageKey]     ? : [plist objectForKey:OEControllerImageKey];
     controllerImageMaskName = [localizedPlist objectForKey:OEControllerImageMaskKey] ? : [plist objectForKey:OEControllerImageMaskKey];
-    
-    NSDictionary *positions = [plist objectForKey:OEControllerKeyPositionKey];
-    NSDictionary *localPos  = [localizedPlist objectForKey:OEControllerKeyPositionKey];
-    
-    NSMutableDictionary *converted = [[NSMutableDictionary alloc] initWithCapacity:[positions count]];
-    
-    for(NSString *key in positions)
-    {
-        NSString *value = [localPos objectForKey:key] ? : [positions objectForKey:key];
-        
-        [converted setObject:[NSValue valueWithPoint:value != nil ? NSPointFromString(value) : NSZeroPoint] forKey:key];
-    }
-    
-    controllerKeyPositions = [converted copy];
 }
 
 - (id)newGameSystemResponder;

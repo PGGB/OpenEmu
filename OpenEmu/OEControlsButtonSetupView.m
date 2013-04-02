@@ -93,7 +93,7 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
     [[[self subviews] copy] makeObjectsPerformSelector:@selector(removeFromSuperview)];
     
     _OEControlsSetupViewParser *parser = [[_OEControlsSetupViewParser alloc] initWithTarget:self];
-    [parser parseControlList:controlList];
+    //[parser parseControlList:controlList];
     
     elementPages   = [parser elementPages];
     keyToButtonMap = [parser keyToButtonMap];
@@ -106,7 +106,7 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
           @{ NSNullPlaceholderBindingOption : @"" }];
      }];
     
-    [self OE_layoutSubviews];
+    //[self OE_layoutSubviews];
 }
 
 - (IBAction)OE_selectInputControl:(id)sender

@@ -6,38 +6,5 @@
 	<string>controller_nds.png</string>
 	<key>OEControllerImageMaskKey</key>
 	<string>controller_nds_mask.png</string>
-	<key>OEControllerKeyPositionKey</key>
-	<dict>
-		<key>OENDSButtonUp</key>
-		<string>{146, 166}</string>
-		<key>OENDSButtonDown</key>
-		<string>{146, 130}</string>
-		<key>OENDSButtonA</key>
-		<string>{476, 157}</string>
-		<key>OENDSButtonLeft</key>
-		<string>{128, 148}</string>
-		<key>OENDSButtonRight</key>
-		<string>{164, 148}</string>
-		<key>OENDSButtonStart</key>
-		<string>{424, 84}</string>
-		<key>OENDSButtonSelect</key>
-		<string>{424, 61}</string>
-		<key>OENDSButtonB</key>
-		<string>{453, 134}</string>
-		<key>OENDSButtonL</key>
-		<string>{131, 236}</string>
-		<key>OENDSButtonR</key>
-		<string>{469, 236}</string>
-		<key>OENDSButtonX</key>
-		<string>{453, 180}</string>
-		<key>OENDSButtonY</key>
-		<string>{430, 157}</string>
-		<key>OENDSButtonMicrophone</key>
-		<string>{299, 236}</string>
-		<key>OENDSButtonLid</key>
-		<string>{0, 0}</string>
-		<key>OENDSButtonDebug</key>
-		<string>{0, 0}</string>
-	</dict>
 </dict>
 </plist>

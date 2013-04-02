@@ -385,7 +385,6 @@ static CFHashCode _OEHIDEventHashSetCallback(OEHIDEvent *value)
     OEControllerImageView *newControllerView = [[OEControllerImageView alloc] initWithFrame:[[self controllerContainerView] bounds]];
     [newControllerView setImage:[systemController controllerImage]];
     [newControllerView setImageMask:[systemController controllerImageMask]];
-    [newControllerView setKeyPositions:[systemController controllerKeyPositions]];
     [newControllerView setTarget:self];
     [newControllerView setAction:@selector(changeInputControl:)];
 
