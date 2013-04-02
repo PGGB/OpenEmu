@@ -45,14 +45,14 @@
 @interface _OEControlsSetupViewParser : NSObject
 - (id)initWithTarget:(OEControlsButtonSetupView *)aTarget;
 - (void)parseControlList:(NSArray *)controlList;
-- (NSArray *)elementPages;
+- (NSArray *)elementGroups;
 - (NSArray *)orderedKeys;
 - (NSDictionary *)keyToButtonMap;
 @end
 
 @interface OEControlsButtonSetupView ()
 {
-	NSArray      *elementPages;
+	NSArray      *elementGroups;
     NSArray      *orderedKeys;
     NSDictionary *keyToButtonMap;
     CGFloat       lastWidth;
@@ -69,12 +69,7 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
 
 - (id)initWithFrame:(NSRect)frame
 {
-    if((self = [super initWithFrame:frame]))
-    {
-        elementPages = [[NSMutableArray alloc] initWithObjects:[NSMutableArray array], nil];
-        NSMutableArray *currentPage = [elementPages lastObject];
-        [currentPage addObject:[NSMutableArray array]];
-    }
+    self = [super initWithFrame:frame];
     
     return self;
 }
@@ -93,11 +88,11 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
     [[[self subviews] copy] makeObjectsPerformSelector:@selector(removeFromSuperview)];
     
     _OEControlsSetupViewParser *parser = [[_OEControlsSetupViewParser alloc] initWithTarget:self];
-    //[parser parseControlList:controlList];
+    [parser parseControlList:controlList];
     
-    elementPages   = [parser elementPages];
-    keyToButtonMap = [parser keyToButtonMap];
-    orderedKeys    = [parser orderedKeys];
+    elementGroups   = [parser elementGroups];
+    keyToButtonMap  = [parser keyToButtonMap];
+    orderedKeys     = [parser orderedKeys];
     
     [keyToButtonMap enumerateKeysAndObjectsUsingBlock:
      ^(NSString *key, OEControlsKeyButton *obj, BOOL *stop)
@@ -106,7 +101,7 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
           @{ NSNullPlaceholderBindingOption : @"" }];
      }];
     
-    //[self OE_layoutSubviews];
+    [self OE_layoutSubviews];
 }
 
 - (IBAction)OE_selectInputControl:(id)sender
@@ -169,7 +164,7 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
     lastWidth = [self frame].size.width;
     
     // determine required height
-    CGFloat viewHeight = MAX([elementPages count] * pageHeight + ([elementPages count] - 1) * pageSpacing + topBorder + bottomBorder, 187.0);
+    CGFloat viewHeight = [elementGroups count] * pageHeight + ([elementGroups count] - 1) * pageSpacing + topBorder + bottomBorder;
     if([self frame].size.height != viewHeight)
     {
         NSRect frame = [self frame];
@@ -178,9 +173,10 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
     }
     
     __block CGFloat pageY = [self frame].size.height - topBorder;
-    
+
+    /*
     // iterate through pages
-    for(NSMutableArray *aPage in elementPages)
+    for(NSMutableArray *aPage in elementGroups)
     {
         // iterate through columns
         NSUInteger columns = [aPage count];
@@ -266,7 +262,7 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
          }];
         
         pageY -= pageHeight+pageSpacing;
-    }
+    }*/
 }
 
 #pragma mark -
@@ -279,7 +275,7 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
     {
         y = [self frame].size.height;
     }
-    else if(p == [elementPages count] - 1)
+    else if(p == [elementGroups count] - 1)
     {
         y = 0;
     }
@@ -354,19 +350,17 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
 @interface _OEControlsSetupViewParser ()
 {
     OEControlsButtonSetupView *target;
-    NSMutableArray      *elementPages;
+    NSMutableArray      *elementGroups;
     NSMutableArray      *orderedKeys;
     NSMutableDictionary *keyToButtonMap;
     
-    NSMutableArray      *currentPage;
-    NSMutableArray      *currentColumn;
+    NSMutableArray      *currentGroup;
 }
 
 - (void)OE_addButtonWithName:(NSString *)aName label:(NSString *)label;
-- (void)OE_addColumnLabel:(NSString*)label;
+- (void)OE_addGroupLabel:(NSString*)label;
 - (void)OE_addRowSeperator;
-- (void)OE_addColumn;
-- (void)OE_addPage;
+- (void)OE_addGroup;
 
 @end
 
@@ -389,44 +383,36 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
 - (void)parseControlList:(NSArray *)controlList;
 {
     keyToButtonMap = [[NSMutableDictionary alloc] init];
-    elementPages   = [[NSMutableArray      alloc] init];
     orderedKeys    = [[NSMutableArray      alloc] init];
-    currentPage    = nil;
-    currentColumn  = nil;
-    
-    for(NSArray *page in controlList)
+    elementGroups  = [[NSMutableArray      alloc] init];
+    currentGroup   = nil;
+
+    for(NSArray *group in controlList)
     {
-        [self OE_addPage];
-        
-        for(NSArray *column in page)
+        [self OE_addGroup];
+
+        for(id row in group)
         {
-            [self OE_addColumn];
-            for(id row in column)
+            if([row isKindOfClass:[NSString class]])
             {
-                if([row isKindOfClass:[NSString class]])
-                {
-                    if([row isEqualToString:@"-"])
-                        [self OE_addRowSeperator];
-                    else
-                        [self OE_addColumnLabel:row];
-                }
-                else if([row isKindOfClass:[NSDictionary class]])
-                    [self OE_addButtonWithName:[row objectForKey:OEControlListKeyNameKey]
-                                         label:[[row objectForKey:OEControlListKeyLabelKey] stringByAppendingString:@":"]];
+                if([row isEqualToString:@"-"])
+                    [self OE_addRowSeperator];
+                else
+                    [self OE_addGroupLabel:row];
             }
+            else if([row isKindOfClass:[NSDictionary class]])
+                [self OE_addButtonWithName:[row objectForKey:OEControlListKeyNameKey]
+                                     label:[[row objectForKey:OEControlListKeyLabelKey] stringByAppendingString:@":"]];
         }
-        
-        [currentPage addObject:currentColumn];
-        currentColumn = nil;
     }
-    
-    [elementPages addObject:currentPage];
-    currentPage = nil;
+
+    [elementGroups addObject:currentGroup];
+    currentGroup = nil;
 }
 
-- (NSArray *)elementPages;
+- (NSArray *)elementGroups;
 {
-    return [elementPages copy];
+    return [elementGroups copy];
 }
 
 - (NSArray *)keyToButtonMap;
@@ -449,7 +435,7 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
     [orderedKeys    addObject:aName];
     [keyToButtonMap setObject:button forKey:aName];
     
-    [currentColumn addObject:button];
+    [currentGroup addObject:button];
     
     NSTextField     *labelField     = [[NSTextField alloc] initWithFrame:NSZeroRect];
     NSTextFieldCell *labelFieldCell = [[OEControlsKeyLabelCell alloc] init];
@@ -457,38 +443,30 @@ static void *const _OEControlsSetupViewFrameSizeContext = (void *)&_OEControlsSe
     [labelField setCell:labelFieldCell];
     [labelField setStringValue:aLabel];
     
-    [currentColumn addObject:labelField];
+    [currentGroup addObject:labelField];
 }
 
-- (void)OE_addColumnLabel:(NSString *)label;
+- (void)OE_addGroupLabel:(NSString *)label;
 {
     NSTextField *labelField = [[NSTextField alloc] initWithFrame:NSZeroRect];
     NSTextFieldCell *labelFieldCell = [[OEControlsKeyHeadlineCell alloc] init];
     [labelField setCell:labelFieldCell];
     [labelField setStringValue:label];
-    [currentColumn addObject:labelField];
+    [currentGroup addObject:labelField];
 }
 
 - (void)OE_addRowSeperator;
 {
     OEControlsKeySeparatorView *view = [[OEControlsKeySeparatorView alloc] init];
-    [currentColumn addObject:view];
+    [currentGroup addObject:view];
 }
 
-- (void)OE_addColumn;
+- (void)OE_addGroup;
 {
-    if(currentColumn)
-        [currentPage addObject:currentColumn];
+    if(currentGroup)
+        [elementGroups addObject:currentGroup];
     
-    currentColumn = [[NSMutableArray alloc] init];
-}
-
-- (void)OE_addPage;
-{
-    if(currentPage)
-        [elementPages addObject:currentPage];
-    
-    currentPage = [[NSMutableArray alloc] init];
+    currentGroup = [[NSMutableArray alloc] init];
 }
 
 @end
